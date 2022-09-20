@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include "user.hpp"
 using namespace std;
 //vrum vrum
 #define fast_io ios_base::sync_with_stdio(0); cin.tie(0);
@@ -27,30 +28,6 @@ bool prime(ll a) { if (a==1) return 0; for (int i=2;i*i<=a;++i) if (a%i==0) retu
 //usar cabecadlho
 //usar lapide 
 //usar indicador de tamanho de registro
-class User{	
-	public:
-		int idConta;
-		string np;
-		string email;
-		string nu;
-		string senha;
-		string cpf;//const size = 11 //vector<char> cpf(11);
-		string cidade;
-		int trf;
-		float conta;
-
-		void writeToFile(ofstream &fout){
-			fout << "t\n";
-			fout << this->np << endl;
-			fout << this->email << endl;
-			fout << this->nu << endl;
-			fout << this->senha << endl;
-			fout << this->cpf << endl;
-			fout << this->cidade << endl;
-			fout << this->trf << endl;
-			fout << this->conta << endl;
-		}
-};
 
 class cb{
 	private:		
@@ -80,10 +57,12 @@ void cb::ct(User u){
 
 User cb::rd(int id){
 	ifstream fin ("db.txt");
-	for(int i = 0; i < k; ++i){
+	for(int i = 0; i < id; ++i){
 		string tmp;
 		getline(fin, tmp);
 	}
+	User ans;
+	return ans;
 }
 
 /*
@@ -99,6 +78,11 @@ int main(){//fast_io;
 	ofstream fout ("test.out");
     ifstream fin ("test.in");
 	*/
-    int a, b;
+	ofstream fout ("test.out");
+	vector<string> email(1);
+	email[0] = "teste@gmail";
+	float tmp = 200.7;
+	User u(1,"pedro", email, "pedrosa", "123", "11097763650", "brasilia", 100, tmp);
+	u.writeToFile(fout);
 	return (0);
 }
