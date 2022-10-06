@@ -1,4 +1,5 @@
-//import java.util.ArrayList;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import java.util.Arrays;
 
@@ -6,7 +7,7 @@ public class User {
 
     protected int idConta;
     protected String nomePessoa;
-    protected String[] emails;
+    protected ArrayList<String> emails;
     protected String nomeUsuario;
     protected String senha;
     protected char[] cpf = new char[11];
@@ -14,7 +15,7 @@ public class User {
     protected int transferenciasRealizadas;
     protected float saldoConta;
 
-    public User(int idConta, String nomePessoa, String[] emails, String nomeUsuario, String senha, char[] cpf, String cidade, int transferenciasRealizadas, float saldoConta) {
+    public User(int idConta, String nomePessoa, ArrayList<String> emails, String nomeUsuario, String senha, char[] cpf, String cidade, int transferenciasRealizadas, float saldoConta) {
         this.idConta = idConta;
         this.nomePessoa = nomePessoa;
         this.emails = emails;
@@ -42,11 +43,11 @@ public class User {
         this.nomePessoa = nomePessoa;
     }
 
-    public String[] getEmails() {
+    public ArrayList<String> getEmails() {
         return emails;
     }
 
-    public void setEmails(String[] emails) {
+    public void setEmails(ArrayList<String> emails) {
         this.emails = emails;
     }
 
@@ -92,24 +93,5 @@ public class User {
 
     public float getSaldoConta() {
         return saldoConta;
-    }
-
-    public void setSaldoConta(float saldoConta) {
-        this.saldoConta = saldoConta;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "idConta=" + idConta +
-                ", nomePessoa='" + nomePessoa + '\'' +
-                ", emails=" + Arrays.toString(emails) +
-                ", nomeUsuario='" + nomeUsuario + '\'' +
-                ", senha='" + senha + '\'' +
-                ", cpf=" + Arrays.toString(cpf) +
-                ", cidade='" + cidade + '\'' +
-                ", transferenciasRealizadas=" + transferenciasRealizadas +
-                ", saldoConta=" + saldoConta +
-                '}';
     }
 }
