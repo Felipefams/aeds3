@@ -82,7 +82,7 @@ public class User {
     public void setCidade(String cidade) {
         this.cidade = cidade;
     }
-
+    
     public int getTransferenciasRealizadas() {
         return transferenciasRealizadas;
     }
