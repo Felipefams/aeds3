@@ -1,278 +1,10 @@
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.Scanner;
 
-// ---------------------------------------------------------------------------------------------------------------- //
-
-class BankAccount {
-
-    static int globalId;
-
-    private int id, transfers;
-    private String name, user, pass, cpf, city;
-    private ArrayList<String> emails;
-    private float balance;
-
-    public BankAccount() {
-
-        this.id = -1;
-        this.name = this.user = this.pass = this.cpf = this.city = null;
-        this.balance = -1;
-        this.transfers = 0;
-        this.emails = new ArrayList<String>();
-    }
-
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getUser() { return user; }
-    public String getPass() { return pass; }
-    public String getCpf() { return cpf; }
-    public String getCity() { return city; }
-    public float getBalance() { return balance; }
-    public int getEmailsCount() { return emails.size(); }
-    public int getTransfers() { return transfers; }
-    public ArrayList<String> getEmails() { return emails; }
-
-    public void setId(int id) { this.id = id; }
-    public void setName(String name) { this.name = name; }
-    public void setUser(String user) { this.user = user; }
-    public void setPass(String pass) { this.pass = pass; }
-    public void setCpf(String cpf) { this.cpf = cpf; }
-    public void setCity(String city) { this.city = city; }
-    public void setBalance(float balance) { this.balance = balance; }
-    public void setTransfers(int transfers) { this.transfers = transfers; }
-    public void addEmail(String email) { this.emails.add(email); }
-
-    public byte[] toByteArray() throws Exception {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-
-        dos.writeInt(this.getId());
-        dos.writeUTF(this.getName());
-        dos.writeInt(this.getEmailsCount());
-
-        for (String email : this.getEmails()) dos.writeUTF(email);
-
-        dos.writeUTF(this.getUser());
-        dos.writeUTF(this.getPass());
-        dos.writeUTF(this.getCpf());
-        dos.writeUTF(this.getCity());
-        dos.writeInt(this.getTransfers());
-        dos.writeFloat(this.getBalance());
-
-        dos.close();
-        baos.close();
-        return baos.toByteArray();
-    }
-
-    public static boolean create(BankAccount ba) {
-
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
-
-            raf.seek(raf.length());
-            raf.writeByte(0);
-            raf.writeInt(ba.toByteArray().length);
-            raf.writeInt(ba.getId());
-            raf.writeUTF(ba.getName());
-            raf.writeUTF(ba.getUser());
-            raf.writeUTF(ba.getPass());
-            raf.writeUTF(ba.getCpf());
-            raf.writeUTF(ba.getCity());
-            raf.writeFloat(ba.getBalance());
-            raf.writeInt(ba.getTransfers());
-            raf.writeInt(ba.getEmailsCount());
-
-            for (String email : ba.getEmails()) raf.writeUTF(email);
-
-            raf.seek(0);
-            raf.writeInt(globalId);
-            raf.close();
-            return true;
-        }
-        catch(Exception e) { return false; }
-    }
-
-    public static boolean update(BankAccount ba) {
-
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
-
-            raf.seek(4);
-
-            while(raf.getFilePointer() < raf.length()) {
-
-                if(raf.readByte() == 0) {
-
-                    int size = raf.readInt();
-                    int id = raf.readInt();
-
-                    if(ba.getId() == id) {
-
-                        if(size >= ba.toByteArray().length) {
-                            
-                            raf.writeUTF(ba.getName());
-                            raf.writeUTF(ba.getUser());
-                            raf.writeUTF(ba.getPass());
-                            raf.writeUTF(ba.getCpf());
-                            raf.writeUTF(ba.getCity());
-                            raf.writeFloat(ba.getBalance());
-                            raf.writeInt(ba.getTransfers());
-                            raf.writeInt(ba.getEmailsCount());
-
-                            for (String email : ba.getEmails()) raf.writeUTF(email);
-
-                            raf.close();
-                            return true;
-                        }
-                        else {
-
-                            raf.seek(raf.getFilePointer() - 9);
-                            raf.writeByte(1);
-                            raf.close();
-                            return create(ba);
-                        }
-                    }
-                    else raf.skipBytes(size - 4);
-                }
-                else raf.skipBytes(raf.readInt());
-            }
-
-            raf.close();
-            return true;
-        }
-        catch(Exception e) { return false; }
-    }
-
-    public static BankAccount delete(BankAccount ba) {  
-            
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
-
-            raf.seek(4);
-
-            while(raf.getFilePointer() < raf.length()) {
-
-                if(raf.readByte() == 0) {
-
-                    int size = raf.readInt();
-                    int id = raf.readInt();
-
-                    if(ba.getId() == id) {
-
-                        raf.seek(raf.getFilePointer() - 9);
-                        raf.writeByte(1);
-                        raf.close();
-                        return ba;
-                    }
-                    else raf.skipBytes(size - 4);
-                }
-                else raf.skipBytes(raf.readInt());
-            }
-
-            raf.close();
-            return null;
-        }
-        catch(Exception e) { return null; }
-    }
-
-    public static BankAccount searchById(int id) {
-
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
-            BankAccount ba = new BankAccount();
-
-            raf.seek(4);
-
-            while(raf.getFilePointer() < raf.length()) {
-
-                if(raf.readByte() == 0) {
-
-                    int size = raf.readInt();
-
-                    ba.setId(raf.readInt());
-
-                    if(ba.getId() == id) {
-
-                        ba.setName(raf.readUTF());
-                        ba.setUser(raf.readUTF());
-                        ba.setPass(raf.readUTF());
-                        ba.setCpf(raf.readUTF());
-                        ba.setCity(raf.readUTF());
-                        ba.setBalance(raf.readFloat());
-                        ba.setTransfers(raf.readInt());
-
-                        int emailsCount = raf.readInt();
-                        for (int i = 0; i < emailsCount; i++) ba.addEmail(raf.readUTF());
-
-                        raf.close();
-                        return ba;
-                    }
-                    else raf.skipBytes(size - 4);
-                }
-                else raf.skipBytes(raf.readInt());
-            }
-
-            raf.close();
-            return null;
-        }
-        catch(Exception e) { return null; }
-    }
-
-    public static BankAccount searchByUser(String user) {
-
-        try {
-
-            RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
-            BankAccount ba = new BankAccount();
-
-            raf.seek(4);
-
-            while(raf.getFilePointer() < raf.length()) {
-
-                if(raf.readByte() == 0) {
-
-                    int size = raf.readInt();
-
-                    ba.setId(raf.readInt());
-                    ba.setName(raf.readUTF());
-                    ba.setUser(raf.readUTF());
-
-                    if(ba.getUser().equals(user)) {
-
-                        ba.setPass(raf.readUTF());
-                        ba.setCpf(raf.readUTF());
-                        ba.setCity(raf.readUTF());
-                        ba.setBalance(raf.readFloat());
-                        ba.setTransfers(raf.readInt());
-
-                        int emailsCount = raf.readInt();
-                        for (int i = 0; i < emailsCount; i++) ba.addEmail(raf.readUTF());
-
-                        raf.close();
-                        return ba;
-                    }
-                    else raf.skipBytes(size - 8 - ba.getName().length() - ba.getUser().length());
-                }
-                else raf.skipBytes(raf.readInt());
-            }
-
-            raf.close();
-            return null;
-        }
-        catch(Exception e) { return null; }
-    }
-
-    // ---------------------------------------------------------------------------------------------------------------- //
+public class Main {
 
     public static void main(String[] args) throws Exception {
+        int globalId = Crud.globalId;
         
         RandomAccessFile raf = new RandomAccessFile("accounts.bin", "rw");
 
@@ -377,7 +109,7 @@ class BankAccount {
                     System.out.println("\n>>> Conta criada com sucesso!");
                     System.out.println("==================================\n");
 
-                    create(ba);
+                    Crud.create("accounts.bin",ba);
                     break;
                 }
 
@@ -396,8 +128,8 @@ class BankAccount {
                     System.out.print("> Digite o valor da transferencia: ");
                     float value = scr.nextFloat();
 
-                    BankAccount ba_origin = searchByUser(origin);
-                    BankAccount ba_destiny = searchByUser(destiny);
+                    BankAccount ba_origin = Crud.searchByUser(origin);
+                    BankAccount ba_destiny = Crud.searchByUser(destiny);
                     
                     if(ba_origin == null) System.out.println("x Conta de origem nao encontrada!");
                     else if(ba_destiny == null) System.out.println("x Conta de destino nao encontrada!");
@@ -410,8 +142,8 @@ class BankAccount {
                         ba_origin.setTransfers(ba_origin.getTransfers() + 1);
                         ba_destiny.setTransfers(ba_destiny.getTransfers() + 1);
 
-                        update(ba_origin);
-                        update(ba_destiny);
+                        Crud.update(ba_origin);
+                        Crud.update(ba_destiny);
 
                         System.out.println("\n>>> Transferencia realizada com sucesso!");
                     }
@@ -427,7 +159,7 @@ class BankAccount {
                     System.out.print("> Digite o ID da conta desejada: ");
                     int id = scr.nextInt();
 
-                    BankAccount ba = searchById(id);
+                    BankAccount ba = Crud.searchById( "accounts.bin",id);
 
                     if(ba == null) System.out.println("x Conta nao encontrada!");
                     else {
@@ -457,7 +189,7 @@ class BankAccount {
                     System.out.print("> Digite o usuário da conta desejada: ");
                     String user = scr.next();
 
-                    BankAccount ba = searchByUser(user);
+                    BankAccount ba = Crud.searchByUser(user);
 
                     if(ba == null) System.out.println("x Conta nao encontrada!");
                     else {
@@ -566,7 +298,7 @@ class BankAccount {
 
                         if(updateOption != 0) {
 
-                            update(ba);
+                            Crud.update(ba);
 
                             System.out.println("\n>>> Conta atualizada com sucesso!");
                             break;
@@ -584,7 +316,7 @@ class BankAccount {
                     System.out.print("> Digite o ID da conta desejada: ");
                     int id = scr.nextInt();
 
-                    BankAccount ba = searchById(id);
+                    BankAccount ba = Crud.searchById("accounts.bin",id);
 
                     if(ba == null) System.out.println("x Conta nao encontrada!");
                     else {
@@ -606,7 +338,7 @@ class BankAccount {
 
                         if(answer.equals("s")) {
 
-                            delete(ba);
+                            Crud.delete(ba);
 
                             System.out.println("\n>>> Conta ID " + ba.getId() + " deletada com sucesso!");
                         }
@@ -634,12 +366,11 @@ class BankAccount {
             }
         }
         while(option != 0);
+
         // ----------------------------------------------------------- //
         
         scr.close();
         raf.close();
     }
-
-    
-
+ 
 }
