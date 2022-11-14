@@ -4,18 +4,21 @@ import java.io.RandomAccessFile;
 
 public class Crud {
 
-    // --------------------------------------------------- // 
+    static int globalId;
+    static final String DEFAULT_FILE = "accounts.bin";
+    static final String DEFAULT_FILE_HASH = "hash.bin";
+
     
     public static boolean create(BankAccount ba) {
 
         try {
 
-            RandomAccessFile raf = new RandomAccessFile(Main.DEFAULT_FILE, "rw");
+            RandomAccessFile raf = new RandomAccessFile(DEFAULT_FILE, "rw");
 
             raf.seek(raf.length());
             raf.writeByte(0);
             raf.writeInt(ba.toByteArray().length);
-            raf.writeInt(++Main.globalId);
+            raf.writeInt(++globalId);
             raf.writeUTF(ba.getName());
             raf.writeUTF(ba.getUser());
             raf.writeUTF(ba.getPass());
@@ -28,11 +31,9 @@ public class Crud {
             for(String email : ba.getEmails()) raf.writeUTF(email);
 
             raf.seek(0);
-            raf.writeInt(Main.globalId);
+            raf.writeInt(globalId);
             raf.close();
 
-            Inverted.create();
-            Hash.create(4);
             return true;
         }
         catch(Exception e) { return false; }
@@ -44,7 +45,7 @@ public class Crud {
 
         try {
 
-            RandomAccessFile raf = new RandomAccessFile(Main.DEFAULT_FILE, "rw");
+            RandomAccessFile raf = new RandomAccessFile(DEFAULT_FILE, "rw");
 
             raf.seek(4);
 
@@ -72,8 +73,6 @@ public class Crud {
 
                             raf.close();
 
-                            Inverted.create();
-                            Hash.create(4);
                             return true;
                         }
                         else {
@@ -101,7 +100,7 @@ public class Crud {
             
         try {
 
-            RandomAccessFile raf = new RandomAccessFile(Main.DEFAULT_FILE, "rw");
+            RandomAccessFile raf = new RandomAccessFile(DEFAULT_FILE, "rw");
 
             raf.seek(4);
 
@@ -118,8 +117,6 @@ public class Crud {
                         raf.writeByte(1);
                         raf.close();
 
-                        Inverted.create();
-                        Hash.create(4);
                         return ba;
                     }
                     else raf.skipBytes(size - 4);
@@ -185,7 +182,7 @@ public class Crud {
 
         try {
 
-            RandomAccessFile raf = new RandomAccessFile(Main.DEFAULT_FILE, "rw");
+            RandomAccessFile raf = new RandomAccessFile(DEFAULT_FILE, "rw");
             BankAccount ba = new BankAccount();
 
             raf.seek(4);
