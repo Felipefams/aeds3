@@ -83,32 +83,41 @@ public class Huffman {
         printCode(root, "");
     }
 
-    public static Pair<Character, Integer> travFromBitset(Node root, String s, int i, Pair<Character, Integer> ans){
-        ans.first = root.data;
-        ans.second = i;
-        if(root.left == null && root.right == null && Character.isLetter(root.data)){
+	static int index = 0;
+    public static char travFromBitset(Node root, String s, char ans){
+        if(root.left == null && root.right == null){//&& Character.isLetter(root.data)){
+//			ans = root.data;
             //quando chegar no valor nulo retorna
-            return ans;
-        }if(s.charAt(i) == '1'){// bitSet.get(i)){
+            return root.data;
+        }if(s.charAt(index) == '1'){// bitSet.get(i)){
             //se o valor do bitset for 1, vai pra direita
-            ans = travFromBitset(root.right, s, i + 1, ans);
+            ans = travFromBitset(root.right, s, ans);
         }
         else{
             //else vai pra esquerda
-            ans = travFromBitset(root.left, s, i + 1, ans);
+            ans = travFromBitset(root.left, s, ans);
         }
         return ans;
     }
-    public static void decompress(String s){//byte[] arr){ 
+	/*
+	 * passa a string s pro formato de bitset, depois percorre a arvore e descomprime.
+	 * @param s: string a ser decodificada e descomprimida
+	 * */
+    public static void decompress(String s){
         var sb = new StringBuilder();
-        for(int i = 0; i < s.length(); ++i){
-            sb.append(charMap.get(s.charAt(i)));// = charMap.get(s.charAt(i));
-        }
-        for(int i = 0; i < sb.length(); ++i){
-            System.out.print(sb.charAt(i));
-        }
-        System.out.println();
-         
+        for(int i = 0; i < s.length(); ++i) sb.append(charMap.get(s.charAt(i))); 
+
+		String ans = "";
+		String str = sb.toString();
+		while(index < sb.length() - 1){
+			if(index < sb.length() - 1) break;
+			char k = ' ';
+			k = travFromBitset(root, str, k);
+			ans += k;
+			System.out.println(ans);
+			// c a s c a o
+			// c a s a c o
+		}
         /*
         int i = 0;
         Pair<Character, Integer> ans = new Pair<>();
