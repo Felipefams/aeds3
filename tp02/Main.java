@@ -1,9 +1,12 @@
 public class Main {
     public static void main(String[] args) {
-        //char[] chars =  {a, b, c, d, e, f};
-        int[] frequency = {2, 3, 4, 5, 6, 7};
+        //char[] chars =  {a, b, c, d, e, f, g, h, i};
+        int[] frequency = {1, 1, 1, 1, 1};
         Huffman huffman = new Huffman(frequency);
-        
-        huffman.printCode();
+        String teste = "abcde";
+        huffman.traverse(Huffman.root, "");
+//        String encoded = huffman.encode(testeString);
+        Huffman.decompress(teste);
+        // huffman.printCode();
     }
 }

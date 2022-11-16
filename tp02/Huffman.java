@@ -1,4 +1,5 @@
 import java.io.RandomAccessFile;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -10,7 +11,12 @@ public class Huffman {
         public Node left;
         public Node right;
     } 
-    Node root;
+    static class Pair<A, B>{
+        public A first;
+        public B second;
+    }
+
+    static Node root;
     static HashMap <Character, String> charMap = new HashMap<>();// hashmap de char pra String do byte O(1)
     static HashMap <String, Character> codeMap = new HashMap<>();// hashmap de String do byte pra char O(1)
 
@@ -54,9 +60,10 @@ public class Huffman {
         @param node: no atual
         @param s: codigo da letra
     */ 
-    public static void traverse(Node root, String s){
+    public void traverse(Node root, String s){
         if(root.left == null && root.right == null && Character.isLetter(root.data)){
             charMap.put(root.data, s);
+            codeMap.put(s, root.data);
             return;
         }
         traverse(root.left, s + '0');
@@ -76,16 +83,49 @@ public class Huffman {
         printCode(root, "");
     }
 
-    public static byte[] encode(String s, HashMap<Character, String> charMap){
-        byte[] encoded = new byte[s.length()];
-        for(int i = 0; i < s.length(); i++){
-            encoded[i] = (byte)Integer.parseInt(charMap.get(s.charAt(i)), 2);
+    public static Pair<Character, Integer> travFromBitset(Node root, String s, int i, Pair<Character, Integer> ans){
+        ans.first = root.data;
+        ans.second = i;
+        if(root.left == null && root.right == null && Character.isLetter(root.data)){
+            //quando chegar no valor nulo retorna
+            return ans;
+        }if(s.charAt(i) == '1'){// bitSet.get(i)){
+            //se o valor do bitset for 1, vai pra direita
+            ans = travFromBitset(root.right, s, i + 1, ans);
         }
-        return encoded;
+        else{
+            //else vai pra esquerda
+            ans = travFromBitset(root.left, s, i + 1, ans);
+        }
+        return ans;
     }
-
-    public static void writeToFile(){
-
+    public static void decompress(String s){//byte[] arr){ 
+        var sb = new StringBuilder();
+        for(int i = 0; i < s.length(); ++i){
+            sb.append(charMap.get(s.charAt(i)));// = charMap.get(s.charAt(i));
+        }
+        for(int i = 0; i < sb.length(); ++i){
+            System.out.print(sb.charAt(i));
+        }
+        System.out.println();
+         
+        /*
+        int i = 0;
+        Pair<Character, Integer> ans = new Pair<>();
+        while(i < s.length()){
+            ans = travFromBitset(Huffman.root, s, i, ans);
+            System.out.print(ans.first + ans.second);
+            i++;
+        }
+         
+        for(int i = 0; i < arr.length; i++){
+            BitSet bitSet = new BitSet();
+            bitSet = BitSet.valueOf(new byte[]{arr[i]});
+            // bitSet.set(arr[i]);
+            char k = travFromBitset(root, bitSet, 0, ' ');
+            System.out.println(k);
+        }  
+        */
     }
 
 }
