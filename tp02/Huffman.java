@@ -19,9 +19,13 @@ public class Huffman {
     static Node root;
     static HashMap <Character, String> charMap = new HashMap<>();// hashmap de char pra String do byte O(1)
     static HashMap <String, Character> codeMap = new HashMap<>();// hashmap de String do byte pra char O(1)
-
+	//passar um hashmap comom parametro no lugar do array de frequencias
+	//ai vai ficar tipo:
+	// a - 43
+	// b - 38
+	// c - 12
     public Huffman(int[] frequency){
-        PriorityQueue<Node> pq = new PriorityQueue<Node>(11, new Comparator<Node>(){
+        PriorityQueue<Node> pq = new PriorityQueue<Node>(frequency.length, new Comparator<Node>(){
             public int compare(Node o1, Node o2) {
                 if(o1.frequency > o2.frequency){
                     return 1;
@@ -61,7 +65,7 @@ public class Huffman {
         @param s: codigo da letra
     */ 
     public void traverse(Node root, String s){
-        if(root.left == null && root.right == null && Character.isLetter(root.data)){
+        if(root.left == null && root.right == null){// && Character.isLetter(root.data)){
             charMap.put(root.data, s);
             codeMap.put(s, root.data);
             return;
@@ -91,50 +95,33 @@ public class Huffman {
             return root.data;
         }if(s.charAt(index) == '1'){// bitSet.get(i)){
             //se o valor do bitset for 1, vai pra direita
+			index++;
             ans = travFromBitset(root.right, s, ans);
         }
         else{
             //else vai pra esquerda
+			index++;
             ans = travFromBitset(root.left, s, ans);
         }
         return ans;
     }
 	/*
-	 * passa a string s pro formato de bitset, depois percorre a arvore e descomprime.
+	 * descomprime a string de bits
 	 * @param s: string a ser decodificada e descomprimida
 	 * */
     public static void decompress(String s){
         var sb = new StringBuilder();
         for(int i = 0; i < s.length(); ++i) sb.append(charMap.get(s.charAt(i))); 
 
+		System.out.println(sb);
 		String ans = "";
 		String str = sb.toString();
 		while(index < sb.length() - 1){
-			if(index < sb.length() - 1) break;
 			char k = ' ';
 			k = travFromBitset(root, str, k);
 			ans += k;
 			System.out.println(ans);
-			// c a s c a o
-			// c a s a c o
 		}
-        /*
-        int i = 0;
-        Pair<Character, Integer> ans = new Pair<>();
-        while(i < s.length()){
-            ans = travFromBitset(Huffman.root, s, i, ans);
-            System.out.print(ans.first + ans.second);
-            i++;
-        }
-         
-        for(int i = 0; i < arr.length; i++){
-            BitSet bitSet = new BitSet();
-            bitSet = BitSet.valueOf(new byte[]{arr[i]});
-            // bitSet.set(arr[i]);
-            char k = travFromBitset(root, bitSet, 0, ' ');
-            System.out.println(k);
-        }  
-        */
     }
 
 }
