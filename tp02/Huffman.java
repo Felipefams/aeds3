@@ -24,8 +24,8 @@ public class Huffman {
 	// a - 43
 	// b - 38
 	// c - 12
-    public Huffman(int[] frequency){
-        PriorityQueue<Node> pq = new PriorityQueue<Node>(frequency.length, new Comparator<Node>(){
+    public Huffman(HashMap<Character, Integer> frequency){ //int[] frequency){
+        PriorityQueue<Node> pq = new PriorityQueue<Node>(frequency.size(), new Comparator<Node>(){
             public int compare(Node o1, Node o2) {
                 if(o1.frequency > o2.frequency){
                     return 1;
@@ -38,6 +38,15 @@ public class Huffman {
                 }
             }
         });
+        for(char c : frequency.keySet()){
+            Node node = new Node();
+            node.frequency = frequency.get(c);
+            node.data = c;
+            node.left = null;
+            node.right = null;
+            pq.add(node);
+        }
+        /* 
         for(int i = 0; i < frequency.length; i++){
             Node node = new Node();
             node.frequency = frequency[i];
@@ -45,7 +54,7 @@ public class Huffman {
             node.left = null;
             node.right = null;
             pq.add(node);
-        }
+        }*/
         while(pq.size() != 1){
             Node left = pq.poll();
             Node right = pq.poll();
