@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
+import javax.swing.plaf.synth.SynthPasswordFieldUI;
+
 public class Huffman {
     class Node {
         public int frequency;
@@ -122,11 +124,23 @@ public class Huffman {
      * 
      * @param s: string a ser decodificada e descomprimida
      */
-    public static void decompress(RandomAccessFile source) throws IOException {
+    public static void decompress(RandomAccessFile source, RandomAccessFile dest) throws IOException {
         source.seek(0);
-        String str = new String();
-        // byte[] bytes = new byte[(int) source.length()];
-        // source.readFully(bytes);
+        // String str = new String();
+        String binary = new String();
+        while (source.getFilePointer() < source.length() - 1) {
+            char c = (char) source.readByte();
+            binary +=  c;
+        }
+        // byte[] b = new byte[binary.length()];
+        byte[] b = binary.getBytes(); 
+        System.out.println(binary);
+        String s = new String();
+        for(int i = 0; i < b.length; ++i){
+            s += String.format("%8s", Integer.toBinaryString(b[i] & 0xFF)).replace(' ', '0');
+        }
+        System.out.println(s);
+        /* 
         while (source.getFilePointer() < source.length()) {
             // bytes =
             // char c = (char) source.readByte();
@@ -145,72 +159,39 @@ public class Huffman {
         RandomAccessFile teste = new RandomAccessFile("teste.bin", "rw");
         teste.writeBytes(ans);
         System.out.println(ans);
+        */
     }
 
     public static void decompress(String s) {
         String ans = new String();
-        while (index < s.length() - 1) {
+        while (index < s.length()) {
             char k = ' ';
             k = travFromBitset(root, s, k);
             ans += k;
         }
         System.out.println(ans);
     }
-
+    
+    /*
+     * comprime o arquivo @source para o arquivo @dest
+     */
     public static void compress(RandomAccessFile source, RandomAccessFile dest) throws IOException {
-        //2508
+        // 2508
         String binary = new String();
         while (source.getFilePointer() < source.length()) {
             char c = (char) source.readByte();
             binary += charMap.get(c);
         }
-        // System.out.println(binary);
-        // decompress(binary);
-        try{
-            RandomAccessFile tmpTeste = new RandomAccessFile("tmp.bin", "rw");
-            StringBuilder tmp = new StringBuilder();
-            for(int i = 0; i < binary.length(); ++i){
-                tmp.append(binary.charAt(i));
-                if(tmp.length() == 8){
-                    byte b = (byte) Integer.parseInt(tmp.toString(), 2);
-                    // tmpTeste.writeByte(Integer.parseInt(tmp.toString(), 2));
-                    tmpTeste.write(b);
-                    dest.write(b);
-                    // System.out.println(b);
-                    tmp.setLength(0); // reseta o stringBuilder
-                    // tmp = new StringBuilder();
-                }
+        RandomAccessFile tmpTeste = new RandomAccessFile("tmp.bin", "rw");
+        StringBuilder tmp = new StringBuilder();
+        for (int i = 0; i < binary.length(); ++i) {
+            tmp.append(binary.charAt(i));
+            if (tmp.length() == 8) {
+                byte b = (byte) Integer.parseInt(tmp.toString(), 2);// passa 8 bits pra byte
+                dest.write(b);// escreve o byte no arquivo comprimido
+                tmp.setLength(0); // reseta o stringBuilder
             }
-            // byte[] bytes = new BigInteger(binary, 2).toByteArray();
-            // System.out.println(binary.length());
-            // System.out.println(bytes.length); 
-            // System.out.println(bytes[0]);
-            // tmpTeste.write(bytes);
-            // tmpTeste.writeBytes(binary); nao eh esse
-            tmpTeste.close();
-        }catch(Exception e){}
-        
-        /* 
-        byte[] bytes = new BigInteger(binary, 2).toByteArray();
-       // bitSet.toByteArray();
-        // BitSet bitSet = new BitSet(binary.length());
-        // for (int i = 0; i < binary.length(); i++) {
-        //     if (binary.charAt(i) == '1') {
-        //         bitSet.set(i);
-        //     }
-        // } 
-        for(var b : bytes){
-            System.out.println(b);
         }
-        */
-        /*
-        String s = new String();
-        for(var x : bytes){
-            String tmp = String.format("%8s", Integer.toBinaryString(x & 0xFF)).replace(' ', '0');
-            s += tmp;
-        }*/
-        // System.out.println(s);
-        // decompress(s);
-        // dest.write(bytes);
+        tmpTeste.close();
     }
 }
