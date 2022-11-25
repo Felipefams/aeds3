@@ -1,20 +1,38 @@
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 
 public class Main {
+
     public static void main(String[] args) {
-        //char[] chars =  {a, b, c, d, e, f, g, h, i};
         var frequency = new HashMap<Character, Integer>();
-        frequency.put('a', 1);
-        frequency.put('b', 1);
-        frequency.put('c', 1);
-        frequency.put('d', 1);
-        frequency.put('e', 1);
-        // int[] frequency = {1, 1, 1, 1, 1};
+        try {
+            RandomAccessFile raf = new RandomAccessFile(Crud.DEFAULT_FILE, "rw");
+            while (raf.getFilePointer() < raf.length()) {
+                char c = (char) raf.readByte();
+                frequency.merge(c, 1, Integer::sum);
+            }
+            raf.seek(0);
+            raf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
         Huffman huffman = new Huffman(frequency);
-        String teste = "abcde";
-        huffman.traverse(Huffman.root, "");
-//        String encoded = huffman.encode(testeString);
-        Huffman.decompress(teste);
+        huffman.traverse(Huffman.root, "");// cria o map com os codigos
+
+        try {
+            RandomAccessFile source = new RandomAccessFile("accounts.bin", "rw");
+            RandomAccessFile dest = new RandomAccessFile("compressed.bin", "rw");
+            Huffman.compress(source, dest);
+            // Huffman.decompress(dest);  
+
+            source.seek(0);
+            dest.seek(0);
+            source.close();
+            dest.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         // huffman.printCode();
     }
 }
