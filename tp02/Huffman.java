@@ -46,16 +46,6 @@ public class Huffman {
             node.right = null;
             pq.add(node);
         }
-        /*
-         * for(int i = 0; i < frequency.length; i++){
-         * Node node = new Node();
-         * node.frequency = frequency[i];
-         * node.data = (char)('a' + i);
-         * node.left = null;
-         * node.right = null;
-         * pq.add(node);
-         * }
-         */
         while (pq.size() != 1) {
             Node left = pq.poll();
             Node right = pq.poll();
@@ -127,49 +117,37 @@ public class Huffman {
     public static void decompress(RandomAccessFile source, RandomAccessFile dest) throws IOException {
         source.seek(0);
         // String str = new String();
-        String binary = new String();
-        while (source.getFilePointer() < source.length() - 1) {
-            char c = (char) source.readByte();
-            binary +=  c;
-        }
-        // byte[] b = new byte[binary.length()];
-        byte[] b = binary.getBytes(); 
-        System.out.println(binary);
+        // String binary = new String();
         String s = new String();
-        for(int i = 0; i < b.length; ++i){
-            s += String.format("%8s", Integer.toBinaryString(b[i] & 0xFF)).replace(' ', '0');
-        }
-        System.out.println(s);
-        /* 
         while (source.getFilePointer() < source.length()) {
-            // bytes =
-            // char c = (char) source.readByte();
             byte b = source.readByte();
-            String tmp = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
-            str += tmp;
-            // str += (char) source.readByte();
+            BitSet bitSet = BitSet.valueOf(new byte[] { b });
+            for(int i = 7; i >= 0; --i){
+                if(bitSet.get(i)){
+                    s += '1';
+                }else{
+                    s += '0';
+                }
+            }
+            // System.out.println(s);
         }
-        System.out.println(str);
-        String ans = new String();
-        while (index < str.length() - 1) {
-            char k = ' ';
-            k = travFromBitset(root, str, k);
-            ans += k;
-        }
-        RandomAccessFile teste = new RandomAccessFile("teste.bin", "rw");
-        teste.writeBytes(ans);
-        System.out.println(ans);
-        */
-    }
+        decompress(s, dest);
 
-    public static void decompress(String s) {
+    }
+    static int lengthDiff = 0;
+    public static void decompress(String s, RandomAccessFile dest) {
         String ans = new String();
-        while (index < s.length()) {
+        System.out.println(s.length());
+        while (index < s.length() - lengthDiff) {
             char k = ' ';
             k = travFromBitset(root, s, k);
             ans += k;
         }
-        System.out.println(ans);
+        try{
+        dest.writeBytes(ans);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
     
     /*
@@ -182,7 +160,6 @@ public class Huffman {
             char c = (char) source.readByte();
             binary += charMap.get(c);
         }
-        RandomAccessFile tmpTeste = new RandomAccessFile("tmp.bin", "rw");
         StringBuilder tmp = new StringBuilder();
         for (int i = 0; i < binary.length(); ++i) {
             tmp.append(binary.charAt(i));
@@ -190,8 +167,15 @@ public class Huffman {
                 byte b = (byte) Integer.parseInt(tmp.toString(), 2);// passa 8 bits pra byte
                 dest.write(b);// escreve o byte no arquivo comprimido
                 tmp.setLength(0); // reseta o stringBuilder
+            }else if(tmp.length() < 8 && i == binary.length()-1 && tmp.length() != 0){
+                lengthDiff = 8 - tmp.length();
+                while(tmp.length() < 8){
+                    tmp.append('0');
+                }
+                byte b = (byte) Integer.parseInt(tmp.toString(), 2);// passa 8 bits pra byte
+                dest.write(b);// escreve o byte no arquivo comprimido
+                tmp.setLength(0); // reseta o stringBuilder
             }
         }
-        tmpTeste.close();
     }
 }

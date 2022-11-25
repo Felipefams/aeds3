@@ -22,7 +22,7 @@ public class Main {
         try {
             RandomAccessFile source = new RandomAccessFile("accounts.bin", "rw");
             RandomAccessFile dest = new RandomAccessFile("compressed.bin", "rw");
-            RandomAccessFile desc = new RandomAccessFile("compressed.bin", "rw");
+            RandomAccessFile desc = new RandomAccessFile("descompressed.bin", "rw");
             Huffman.compress(source, dest);
             Huffman.decompress(dest, desc);  
 
