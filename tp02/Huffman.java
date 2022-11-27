@@ -1,13 +1,9 @@
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-
-import javax.swing.plaf.synth.SynthPasswordFieldUI;
 
 public class Huffman {
     class Node {
@@ -116,25 +112,24 @@ public class Huffman {
      */
     public static void decompress(RandomAccessFile source, RandomAccessFile dest) throws IOException {
         source.seek(0);
-        // String str = new String();
-        // String binary = new String();
         String s = new String();
         while (source.getFilePointer() < source.length()) {
             byte b = source.readByte();
             BitSet bitSet = BitSet.valueOf(new byte[] { b });
-            for(int i = 7; i >= 0; --i){
-                if(bitSet.get(i)){
+            for (int i = 7; i >= 0; --i) {
+                if (bitSet.get(i)) {
                     s += '1';
-                }else{
+                } else {
                     s += '0';
                 }
             }
-            // System.out.println(s);
         }
         decompress(s, dest);
 
     }
+
     static int lengthDiff = 0;
+
     public static void decompress(String s, RandomAccessFile dest) {
         String ans = new String();
         System.out.println(s.length());
@@ -143,13 +138,13 @@ public class Huffman {
             k = travFromBitset(root, s, k);
             ans += k;
         }
-        try{
-        dest.writeBytes(ans);
-        }catch(IOException e){
+        try {
+            dest.writeBytes(ans);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     /*
      * comprime o arquivo @source para o arquivo @dest
      */
@@ -167,9 +162,9 @@ public class Huffman {
                 byte b = (byte) Integer.parseInt(tmp.toString(), 2);// passa 8 bits pra byte
                 dest.write(b);// escreve o byte no arquivo comprimido
                 tmp.setLength(0); // reseta o stringBuilder
-            }else if(tmp.length() < 8 && i == binary.length()-1 && tmp.length() != 0){
+            } else if (tmp.length() < 8 && i == binary.length() - 1 && tmp.length() != 0) {
                 lengthDiff = 8 - tmp.length();
-                while(tmp.length() < 8){
+                while (tmp.length() < 8) {
                     tmp.append('0');
                 }
                 byte b = (byte) Integer.parseInt(tmp.toString(), 2);// passa 8 bits pra byte
