@@ -22,7 +22,7 @@ public class Huffman {
     static HashMap<Character, String> charMap = new HashMap<>();// hashmap de char pra String do byte O(1)
     static HashMap<String, Character> codeMap = new HashMap<>();// hashmap de String do byte pra char O(1)
 
-    public Huffman(HashMap<Character, Integer> frequency) { // int[] frequency){
+    public Huffman(HashMap<Character, Integer> frequency) {
         PriorityQueue<Node> pq = new PriorityQueue<Node>(frequency.size(), new Comparator<Node>() {
             public int compare(Node o1, Node o2) {
                 if (o1.frequency > o2.frequency) {
